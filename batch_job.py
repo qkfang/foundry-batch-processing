@@ -13,7 +13,12 @@ client = OpenAI(base_url=ENDPOINT, api_key=token_provider)
 
 # Upload the input file
 with open("test.jsonl", "rb") as f:
-    input_file = client.files.create(file=f, purpose="batch")
+    # Expiring input files raise the per-resource file limit from 500 to 10,000
+    input_file = client.files.create(
+        file=f,
+        purpose="batch",
+        extra_body={"expires_after": {"seconds": 1209600, "anchor": "created_at"}},
+    )
 print("Uploaded file:", input_file.id)
 
 # Create the batch job
